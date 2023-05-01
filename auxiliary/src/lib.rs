@@ -2,10 +2,9 @@
 
 #![no_std]
 
-#[allow(unused_extern_crates)] // NOTE(allow) bug rust-lang/rust53964
-extern crate panic_itm; // panic handler
+extern crate panic_semihosting;
 
-pub use cortex_m::{asm::bkpt, iprint, iprintln, peripheral::ITM};
+pub use cortex_m::asm::bkpt;
 pub use cortex_m_rt::entry;
 pub use stm32f3_discovery::stm32f3xx_hal::pac::usart1;
 
@@ -18,7 +17,7 @@ use stm32f3_discovery::stm32f3xx_hal::{
 };
 use monotimer::MonoTimer;
 
-pub fn init() -> (&'static mut usart1::RegisterBlock, MonoTimer, ITM) {
+pub fn init() -> (&'static mut usart1::RegisterBlock, MonoTimer) {
     let cp = cortex_m::Peripherals::take().unwrap();
     let dp = pac::Peripherals::take().unwrap();
 
@@ -57,7 +56,6 @@ pub fn init() -> (&'static mut usart1::RegisterBlock, MonoTimer, ITM) {
         (
             &mut *(USART1::ptr() as *mut _),
             MonoTimer::new(cp.DWT, clocks),
-            cp.ITM,
         )
     }
 }
