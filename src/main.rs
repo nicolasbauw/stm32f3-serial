@@ -9,12 +9,16 @@ use cortex_m_semihosting::hprintln;
 fn main() -> ! {
     let (usart1, _mono_timer ) = aux11::init();
 
+    //let instant = mono_timer.now();
     // Send a single character
-    usart1
-        .tdr
-        .write(|w| w.tdr().bits(u16::from(b'X')) );
+    for byte in b"The quick brown fox jumps over the lazy dog.\n\r".iter() {
+        // wait until it's safe to write to TDR
+        while usart1.isr.read().txe().bit_is_clear() {}
+        usart1
+            .tdr
+            .write(|w| w.tdr().bits(u16::from(*byte)) );
+    }
+        hprintln!("Data Sent ");
 
-        hprintln!("Sent X!");
-
-    loop {}
+    panic!("Done !");
 }
